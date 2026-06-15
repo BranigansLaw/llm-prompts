@@ -24,7 +24,7 @@ Based on the answers:
 
 - Always use **TypeScript** — never plain JavaScript. All files should use `.tsx` / `.ts` extensions. Use strict TypeScript configuration.
 - Follow React best practices at all times.
-- Before using or recommending any library, perform an internet search to check whether that library (or any of its dependencies) has been recently compromised or flagged for security vulnerabilities.
+- **MANDATORY — DO NOT SKIP**: Before installing, using, or recommending **any** third-party library, you **must** perform an internet search (e.g., Snyk vulnerability database, npm advisories, or general web search) to verify that the library and its dependencies have not been recently compromised or flagged for security vulnerabilities. Do this for **every** dependency before running `npm install`. If you cannot verify a library's safety, inform the user before proceeding.
 - When scaffolding a new project, perform an internet search to confirm the latest stable version of the chosen framework (Vite or Next.js) and its CLI command — do not assume a specific version is current.
 - Prefer functional components with hooks over class components.
 - Keep components small, focused, and single-responsibility. If a component is doing too much, break it into smaller components.
