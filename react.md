@@ -95,7 +95,20 @@ Based on the answers:
 - Deploy to **Azure Static Web Apps**.
 - The `dist/` directory (Vite's default build output) is the deploy artifact.
 - Include a Terraform file at `infrastructure/main.tf` for provisioning the Azure Static Web App resource unless the user states otherwise.
-- Include a **single** GitHub Actions workflow at `.github/workflows/deploy.yml` that handles build, test, and deployment to Azure Static Web Apps on merge to `main`. Favor one workflow with multiple steps/jobs over separate workflows for each concern.
+- Terraform must include an `azurerm` backend block pointing to Azure Blob Storage for remote state. Use the storage account and container the user specifies (or ask if not provided).
+- Terraform is **never run locally** (except `terraform fmt` and `terraform validate` for formatting/validation checks). All `init`, `plan`, and `apply` operations happen exclusively in CI/CD.
+- Include a **single** GitHub Actions workflow at `.github/workflows/deploy.yml` with three jobs:
+  1. **build** — install, lint, type-check (`tsc --noEmit`), `terraform fmt -check` (on the infrastructure directory), test, `vite build`, upload artifact
+  2. **terraform** — `init` → `plan` → `apply` (provisions/updates the Azure Static Web App), output the SWA API key
+  3. **deploy** — download artifact, deploy to the Static Web App using the API key from the terraform job output
+- Use OIDC (workload identity federation) for Azure auth — no client secrets. The pipeline needs `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` as GitHub secrets.
+- Use the latest major versions of GitHub Actions: `actions/checkout@v6`, `actions/setup-node@v6`, `hashicorp/setup-terraform@v4`, `Azure/static-web-apps-deploy@v1`.
+- Include a README section documenting one-time Azure setup: creating the Terraform state backend (resource group, storage account, blob container), creating a service principal with OIDC federated credentials, and configuring the GitHub secrets.
+
+**Templates:** Use the files in `templates/react/` (relative to this instructions file) as starting points:
+- `templates/react/deploy.yml` → `.github/workflows/deploy.yml` (use as-is)
+- `templates/react/main.tf` → `infrastructure/main.tf` (replace `{{APP_NAME}}` with the project name)
+- `templates/react/README-azure-setup.md` → append to the project's `README.md` (replace `{{APP_NAME}}` and `<GITHUB_ORG>/<GITHUB_REPO>` with actual values)
 
 ### Server App (Next.js)
 

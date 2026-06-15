@@ -1,0 +1,111 @@
+name: Deploy to Azure Static Web Apps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TERRAFORM_VERSION: "1.9"
+  NODE_VERSION: "22"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Terraform format check
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      - run: terraform -chdir=infrastructure fmt -check
+
+      - name: Test
+        run: npm run test:run
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  terraform:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: "true"
+    outputs:
+      static_web_app_api_key: ${{ steps.tf-output.outputs.api_key }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform Init
+        working-directory: infrastructure
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: infrastructure
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: infrastructure
+        run: terraform apply -auto-approve tfplan
+
+      - name: Get Terraform Outputs
+        id: tf-output
+        working-directory: infrastructure
+        run: echo "api_key=$(terraform output -raw static_web_app_api_key)" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: [build, terraform]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ needs.terraform.outputs.static_web_app_api_key }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "dist"
+          skip_app_build: true
