@@ -2,15 +2,35 @@
 
 These instructions apply to all React application development. Follow these guidelines unless the project explicitly overrides them.
 
+---
+
+## New Project Setup
+
+When creating a new React application, ask the user the following questions before scaffolding:
+
+1. **"Will this app be standalone (static SPA) or does it need its own server (SSR/API routes)?"**
+2. **"Does this application require authentication? (Auth0 will be used if yes)"**
+
+Based on the answers:
+
+| Answer | Framework | Deployment |
+|--------|-----------|------------|
+| Standalone / static SPA | Vite + React Router | Azure Static Web Apps (include Terraform) |
+| Needs its own server | Next.js (App Router) | Azure App Service or container (do NOT include Terraform — other instruction sets cover this) |
+
+---
+
 ## General Principles
 
 - Follow React best practices at all times.
+- Before using or recommending any library, perform an internet search to check whether that library (or any of its dependencies) has been recently compromised or flagged for security vulnerabilities.
+- When scaffolding a new project, perform an internet search to confirm the latest stable version of the chosen framework (Vite or Next.js) and its CLI command — do not assume a specific version is current.
 - Prefer functional components with hooks over class components.
 - Keep components small, focused, and single-responsibility. If a component is doing too much, break it into smaller components.
 - Use meaningful, descriptive names for components, hooks, and variables.
 - Co-locate related files (component, tests, styles) where practical.
 
-## Component Guidelines
+## Components
 
 - Each component should do one thing well.
 - Extract reusable logic into custom hooks.
@@ -21,9 +41,8 @@ These instructions apply to all React application development. Follow these guid
 
 ## Routing
 
-- Use **React Router** (v6+) for client-side routing unless the project already uses a different router.
-- Use the data router APIs (`createBrowserRouter`, `RouterProvider`) for new projects.
-- Co-locate route definitions in a central routes file or use file-based routing conventions when using a framework (e.g., Remix).
+- **Standalone apps (Vite):** Use React Router (v6+) with the data router APIs (`createBrowserRouter`, `RouterProvider`).
+- **Server apps (Next.js):** Use the built-in App Router file-based routing.
 
 ## Forms
 
@@ -48,7 +67,7 @@ These instructions apply to all React application development. Follow these guid
 
 ### Forms + Redux Integration
 
-- **Do not** sync React Hook Form state to Redux on every keystroke — this defeats RHF's performance model.
+- Do not sync React Hook Form state to Redux on every keystroke — this defeats RHF's performance model.
 - Populate forms from Redux/RTK Query data using `defaultValues`.
 - Dispatch to Redux (or trigger RTK Query mutations) only on form submission — the `onSubmit` handler is where RHF and Redux meet.
 - Only store in-progress form state in Redux when there is a concrete need (multi-step wizards that persist across routes, undo/redo, or multiple unrelated components reading form values).
@@ -65,32 +84,56 @@ These instructions apply to all React application development. Follow these guid
 ## Authentication
 
 - Use **Auth0** for authentication when the application requires it.
-- If this is a new project, prompt the user: **"Does this application require authentication? (Auth0 will be used if yes)"**
 - When Auth0 is used, wrap the application with the Auth0 provider and use the Auth0 React SDK (`@auth0/auth0-react`).
 
 ## Deployment & Infrastructure
 
-- If this is a new application, prompt the user: **"Will this be deployed as a static site? (Azure Static Web Apps will be used if yes)"**
-- Static sites will be deployed to **Azure Static Web Apps**.
-- When deploying as a static site, include a Terraform file (`infrastructure/main.tf`) for provisioning the Azure Static Web App resource unless the user states otherwise.
-- Do not include infrastructure files for non-static deployments — other instruction sets cover those scenarios.
+### Standalone / Static SPA (Vite)
 
-## Project Structure (New Projects)
+- Deploy to **Azure Static Web Apps**.
+- The `dist/` directory (Vite's default build output) is the deploy artifact.
+- Include a Terraform file at `infrastructure/main.tf` for provisioning the Azure Static Web App resource unless the user states otherwise.
 
-When scaffolding a new React project, use this structure as a baseline:
+### Server App (Next.js)
+
+- Do not include Terraform or infrastructure files — other instruction sets cover server-based deployments (Azure App Service, containers, etc.).
+
+---
+
+## Project Structure
+
+### Standalone / Static SPA (Vite + React Router)
 
 ```
 src/
-  components/       # Reusable UI components
-  features/         # Feature-specific components and logic
-  hooks/            # Custom hooks
-  store/            # Redux store, slices, and middleware
-  utils/            # Utility functions
-  types/            # Shared TypeScript types
+  components/         # Reusable UI components
+  features/           # Feature-specific components and logic
+  hooks/              # Custom hooks
+  store/              # Redux store, slices, and middleware
+  utils/              # Utility functions
+  types/              # Shared TypeScript types
+  routes/             # Route definitions and page components
   App.tsx
   main.tsx
-infrastructure/     # Terraform files (if static site)
+infrastructure/       # Terraform files (if static site)
 ```
+
+### Server App (Next.js App Router)
+
+```
+app/
+  layout.tsx          # Root layout
+  page.tsx            # Home page
+  (routes)/           # Route groups
+components/           # Reusable UI components
+features/             # Feature-specific components and logic
+hooks/                # Custom hooks
+store/                # Redux store, slices, and middleware
+utils/                # Utility functions
+types/                # Shared TypeScript types
+```
+
+---
 
 ## Scope
 
