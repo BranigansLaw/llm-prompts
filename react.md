@@ -34,6 +34,7 @@ Based on the answers:
 ## Components
 
 - Each component should do one thing well.
+- **Route/page files must be thin orchestrators.** They should compose feature components — NOT contain inline UI logic, inline SVGs, or large JSX blocks. If a section of a page has a distinct responsibility (e.g., a form, a picker, an animation, a preview), extract it into its own component under `src/features/{feature}/`.
 - Extract reusable logic into custom hooks.
 - Lift state only as high as necessary — avoid unnecessary prop drilling.
 - Use `React.memo`, `useMemo`, and `useCallback` only when there is a measurable performance need — do not prematurely optimize.
@@ -94,6 +95,7 @@ Based on the answers:
 - Deploy to **Azure Static Web Apps**.
 - The `dist/` directory (Vite's default build output) is the deploy artifact.
 - Include a Terraform file at `infrastructure/main.tf` for provisioning the Azure Static Web App resource unless the user states otherwise.
+- Include a **single** GitHub Actions workflow at `.github/workflows/deploy.yml` that handles build, test, and deployment to Azure Static Web Apps on merge to `main`. Favor one workflow with multiple steps/jobs over separate workflows for each concern.
 
 ### Server App (Next.js)
 
@@ -107,17 +109,20 @@ Based on the answers:
 
 ```
 src/
-  components/         # Reusable UI components
-  features/           # Feature-specific components and logic
+  components/         # Reusable UI components (shared across features)
+  features/           # Feature-specific components and logic (one folder per feature/page)
   hooks/              # Custom hooks
   store/              # Redux store, slices, and middleware
   utils/              # Utility functions
   types/              # Shared TypeScript types
-  routes/             # Route definitions and page components
+  routes/             # Route definitions and page components (thin orchestrators only)
   App.tsx
   main.tsx
 infrastructure/       # Terraform files (if static site)
+.github/workflows/    # CI/CD (deploy.yml)
 ```
+
+**Feature folder convention:** Each page/feature gets its own folder under `src/features/` (e.g., `src/features/editor/`, `src/features/setup/`, `src/features/pdf/`). Page-specific components live here — NOT in the route file and NOT in the shared `src/components/` folder. Only truly reusable components (used by 2+ features) belong in `src/components/`.
 
 ### Server App (Next.js App Router)
 
@@ -142,6 +147,6 @@ These instructions are **React-specific only**. They do not cover:
 
 - Backend services (Azure Functions, APIs, etc.)
 - Database design
-- CI/CD pipelines beyond infrastructure-as-code for static hosting
+- CI/CD pipelines beyond the deploy.yml workflow for static hosting
 
 Separate instruction sets exist (or will be created) for those concerns.
