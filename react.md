@@ -83,6 +83,15 @@ Based on the answers:
 - Each component should have a corresponding test file (e.g., `MyComponent.test.tsx`).
 - Aim for meaningful coverage — test the important paths, edge cases, and error states.
 
+## Verification (MANDATORY)
+
+- **After EVERY code change**, you MUST run the following checks before considering the work complete:
+  1. `npm run lint` — must pass with zero errors (warnings are acceptable)
+  2. `npx tsc --noEmit` — must pass with zero errors
+  3. `npx vitest run` — all tests must pass
+- Do NOT skip these checks. Do NOT present work as done until all three pass.
+- If any check fails, fix the issue immediately and re-run all checks.
+
 ## Authentication
 
 - Use **Auth0** for authentication when the application requires it.
@@ -90,20 +99,20 @@ Based on the answers:
 
 ## Deployment & Infrastructure
 
+> **If the change involves Terraform additions or changes**, follow the shared Terraform instructions in [`terraform.md`](terraform.md).
+
 ### Standalone / Static SPA (Vite)
 
 - Deploy to **Azure Static Web Apps**.
 - The `dist/` directory (Vite's default build output) is the deploy artifact.
 - Include a Terraform file at `infrastructure/main.tf` for provisioning the Azure Static Web App resource unless the user states otherwise.
-- Terraform must include an `azurerm` backend block pointing to Azure Blob Storage for remote state. Use the storage account and container the user specifies (or ask if not provided).
-- Terraform is **never run locally** (except `terraform fmt` and `terraform validate` for formatting/validation checks). All `init`, `plan`, and `apply` operations happen exclusively in CI/CD.
 - Include a **single** GitHub Actions workflow at `.github/workflows/deploy.yml` with three jobs:
   1. **build** — install, lint, type-check (`tsc --noEmit`), `terraform fmt -check` (on the infrastructure directory), test, `vite build`, upload artifact
   2. **terraform** — `init` → `plan` → `apply` (provisions/updates the Azure Static Web App), output the SWA API key
   3. **deploy** — download artifact, deploy to the Static Web App using the API key from the terraform job output
 - Use OIDC (workload identity federation) for Azure auth — no client secrets. The pipeline needs `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` as GitHub secrets.
 - Use the latest major versions of GitHub Actions: `actions/checkout@v6`, `actions/setup-node@v6`, `hashicorp/setup-terraform@v4`, `Azure/static-web-apps-deploy@v1`.
-- Include a README section documenting one-time Azure setup: creating the Terraform state backend (resource group, storage account, blob container), creating a service principal with OIDC federated credentials, and configuring the GitHub secrets.
+- Include a README section documenting one-time Azure setup (see `templates/react/README-azure-setup.md` for the full steps).
 
 **Templates:** Use the files in `templates/react/` (relative to this instructions file) as starting points:
 - `templates/react/deploy.yml` → `.github/workflows/deploy.yml` (use as-is)
@@ -158,8 +167,7 @@ types/                # Shared TypeScript types
 
 These instructions are **React-specific only**. They do not cover:
 
-- Backend services (Azure Functions, APIs, etc.)
+- Backend services — see [`azure-functions.md`](azure-functions.md)
+- Terraform details beyond what is listed above — see [`terraform.md`](terraform.md)
 - Database design
 - CI/CD pipelines beyond the deploy.yml workflow for static hosting
-
-Separate instruction sets exist (or will be created) for those concerns.

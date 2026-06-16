@@ -4,11 +4,11 @@ LLM instruction sets for consistent code generation across projects.
 
 ## Available Instructions
 
-| File | Path | Scope |
-|------|------|-------|
-| `react.md` | `d:\dev\Personal\llm-prompts\react.md` | React application development |
-
-More instruction sets (Azure Functions, etc.) will be added over time.
+| File | Scope | Dependencies |
+|------|-------|--------------|
+| [`react.md`](react.md) | React application development | References `terraform.md` for infra changes |
+| [`azure-functions.md`](azure-functions.md) | Azure Functions (C#) development | References `terraform.md` for infra changes |
+| [`terraform.md`](terraform.md) | Shared Terraform/infrastructure rules | Standalone — referenced by other files |
 
 ## Usage
 
@@ -59,4 +59,5 @@ Add the instruction file contents to the custom instructions or project knowledg
 
 - Only include instruction sets relevant to the task — don't load backend instructions for a frontend-only change.
 - These are base instructions. Project-specific overrides (e.g., a different state library already in use) take precedence as noted in each file.
-- Combine multiple instruction files when working across concerns (e.g., `react.md` + a future `azure-functions.md` for a full-stack app).
+- Combine multiple instruction files when working across concerns (e.g., `react.md` + `azure-functions.md` + `terraform.md` for a full-stack app with infrastructure).
+- `terraform.md` is a shared dependency — include it whenever infrastructure work is involved, or rely on the reference in the project-specific file.
