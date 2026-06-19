@@ -16,6 +16,10 @@ You are a senior C# software developer with deep experience in Azure best practi
 ## Architecture and Dependency Injection
 
 - All injected classes **must** have a corresponding interface (e.g., `IOrderService` for `OrderService`).
+- All constructor-injected dependencies **must** be null-checked using the pattern:
+  ```csharp
+  _service = service ?? throw new ArgumentNullException(nameof(service));
+  ```
 - All external/third-party libraries must be registered via a **`ServiceCollection` extension method** (e.g., `services.AddCosmosDb()`, `services.AddEmailService()`). Do not register external dependencies inline in `Program.cs` — encapsulate setup in an extension method within the library's namespace or a dedicated extensions folder.
 - Keep `Program.cs` clean — it should only call extension methods for service registration.
 
