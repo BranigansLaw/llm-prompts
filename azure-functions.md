@@ -22,6 +22,7 @@ You are a senior C# software developer with deep experience in Azure best practi
   ```
 - All external/third-party libraries must be registered via a **`ServiceCollection` extension method** (e.g., `services.AddCosmosDb()`, `services.AddEmailService()`). Do not register external dependencies inline in `Program.cs` — encapsulate setup in an extension method within the library's namespace or a dedicated extensions folder.
 - Keep `Program.cs` clean — it should only call extension methods for service registration.
+- **No private methods in service/implementation classes.** If a service class needs helper logic, extract it to a dedicated helper interface + implementation (e.g., `IFooHelper` / `FooHelperImp`). This keeps services thin and all logic independently testable.
 
 ---
 
