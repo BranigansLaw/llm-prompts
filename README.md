@@ -10,6 +10,12 @@ LLM instruction sets for consistent code generation across projects.
 | [`azure-functions.md`](azure-functions.md) | Azure Functions (C#) development | References `terraform.md` for infra changes |
 | [`terraform.md`](terraform.md) | Shared Terraform/infrastructure rules | Standalone — referenced by other files |
 
+## Utilities
+
+- [`scripts/git-cleanup`](scripts/git-cleanup/README.md) — one-command PowerShell
+  cleanup for any git repo: fetch + prune, return to the default branch, pull
+  latest, delete stale local branches, and `git gc`.
+
 ## Usage
 
 Include the relevant instruction file(s) as context when starting a chat session with an LLM. Methods vary by tool:
