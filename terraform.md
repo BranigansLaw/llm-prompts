@@ -14,6 +14,8 @@ All CI/CD pipelines that include Terraform must follow this job sequence:
 
 Never combine these steps into a single job. Each must be a distinct pipeline stage with explicit dependencies.
 
+> When authoring or modifying the GitHub Actions workflow itself, also follow [`github-actions.md`](github-actions.md) — in particular its rules for minimizing persistent build artifacts.
+
 ---
 
 ## Secrets Handling

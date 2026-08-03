@@ -9,6 +9,7 @@ LLM instruction sets for consistent code generation across projects.
 | [`react.md`](react.md) | React application development | References `terraform.md` for infra changes |
 | [`azure-functions.md`](azure-functions.md) | Azure Functions (C#) development | References `terraform.md` for infra changes |
 | [`terraform.md`](terraform.md) | Shared Terraform/infrastructure rules | Standalone — referenced by other files |
+| [`github-actions.md`](github-actions.md) | GitHub Actions workflows / CI-CD artifact minimization | Standalone — referenced by other files |
 
 ## Utilities
 
