@@ -1,7 +1,7 @@
 # git-cleanup
 
-A one-command PowerShell utility that cleans up the git repository in your
-**current directory** — not the folder this script lives in.
+A one-command utility (PowerShell **and** bash) that cleans up the git
+repository in your **current directory** — not the folder this script lives in.
 
 ## What it does
 
@@ -17,7 +17,7 @@ In order, it:
 8. Runs `git gc --prune=now`.
 9. Prints a summary.
 
-## Install
+## Install (Windows / PowerShell)
 
 From this folder, run once:
 
@@ -35,9 +35,37 @@ To remove it later:
 .\Install-GitCleanup.ps1 -Uninstall
 ```
 
+## Install (Linux / bash)
+
+From this folder, run once:
+
+```bash
+./install-git-cleanup.sh
+```
+
+This symlinks `git-cleanup` into `~/.local/bin` (falling back to
+`/usr/local/bin`) pointing at `git-cleanup.sh`. It's idempotent. If the chosen
+bin directory is not on your `PATH`, the installer prints the `export PATH=...`
+line to add to your `~/.bashrc` or `~/.zshrc`.
+
+Options:
+
+```bash
+./install-git-cleanup.sh --bin-dir ~/bin   # install into a custom directory
+./install-git-cleanup.sh --uninstall       # remove the symlink
+```
+
+You can also skip the installer and run the script directly:
+
+```bash
+./git-cleanup.sh --dry-run
+```
+
 ## Usage
 
 Run from inside any git repository:
+
+**PowerShell**
 
 ```powershell
 git-cleanup            # full cleanup
@@ -47,14 +75,24 @@ git-cleanup -Force     # force-delete unmerged gone branches (git branch -D)
 git-cleanup -SkipGc    # skip the git gc step
 ```
 
+**bash**
+
+```bash
+git-cleanup            # full cleanup
+git-cleanup --dry-run  # preview stale-branch deletions, no changes
+git-cleanup --stash    # auto-stash/pop dirty changes around the switch
+git-cleanup --force    # force-delete unmerged gone branches (git branch -D)
+git-cleanup --skip-gc  # skip the git gc step
+```
+
 ## Parameters
 
-| Parameter  | Description                                                            |
-|------------|------------------------------------------------------------------------|
-| `-DryRun`  | Preview which stale local branches would be deleted; makes no changes. |
-| `-Force`   | Use `git branch -D` to delete gone branches even if not fully merged.  |
-| `-Stash`   | Auto-stash uncommitted changes before switching, then pop afterwards.  |
-| `-SkipGc`  | Skip the `git gc --prune=now` step.                                    |
+| PowerShell | bash         | Description                                                            |
+|------------|--------------|------------------------------------------------------------------------|
+| `-DryRun`  | `--dry-run`  | Preview which stale local branches would be deleted; makes no changes. |
+| `-Force`   | `--force`    | Use `git branch -D` to delete gone branches even if not fully merged.  |
+| `-Stash`   | `--stash`    | Auto-stash uncommitted changes before switching, then pop afterwards.  |
+| `-SkipGc`  | `--skip-gc`  | Skip the `git gc --prune=now` step.                                    |
 
 ## Notes
 
