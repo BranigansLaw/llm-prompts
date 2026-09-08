@@ -35,6 +35,8 @@ Based on the answers:
 ## Components
 
 - Each component should do one thing well.
+- **One component per file.** Each React component lives in its own file named after it (e.g., `CreateHoldForm.tsx`), and the file's default concern is that component. A container/manager component imports its sub-components rather than defining them in the same file. Do not accumulate several components in one `…Manager.tsx`.
+- **Separate pure logic from components.** Non-component helper functions (formatters, error/`status` readers, mappers, constants) do not belong in a `.tsx` file next to JSX. Put them in a sibling module (e.g., `bookingHoldsHelpers.ts`) and import them. A `.tsx` file should export components; a `.ts` helper module should export functions/constants.
 - **Route/page files must be thin orchestrators.** They should compose feature components — NOT contain inline UI logic, inline SVGs, or large JSX blocks. If a section of a page has a distinct responsibility (e.g., a form, a picker, an animation, a preview), extract it into its own component under `src/features/{feature}/`.
 - Extract reusable logic into custom hooks.
 - Lift state only as high as necessary — avoid unnecessary prop drilling.
