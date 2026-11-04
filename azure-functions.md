@@ -26,6 +26,25 @@ You are a senior C# software developer with deep experience in Azure best practi
 
 ---
 
+## Code Style
+
+- When a method, constructor, delegate, or record signature has more than 3 parameters, put each parameter on its own line:
+  ```csharp
+  public Task<Report> HandleAsync(
+      Guid appointmentId,
+      string token,
+      DateOnly date,
+      CancellationToken cancellationToken)
+  ```
+
+---
+
+## Data Access
+
+- Do not use database triggers. Enforce business rules, locking, and coordination in application code. Use a trigger only in an extreme case where no application-level alternative can guarantee the invariant (for example, append-only audit tables protected against direct database edits), and document why in the migration.
+
+---
+
 ## Testing
 
 - All new code must include or update unit tests for the added functionality.
