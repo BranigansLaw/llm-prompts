@@ -41,7 +41,7 @@ You are a senior C# software developer with deep experience in Azure best practi
 
 ## Data Access
 
-- Do not use database triggers. Enforce business rules, locking, and coordination in application code. Use a trigger only in an extreme case where no application-level alternative can guarantee the invariant (for example, append-only audit tables protected against direct database edits), and document why in the migration.
+- Do not use database triggers. Business rules, locking, and coordination belong in application/infrastructure code so they keep working if the data store changes or lacks equivalent trigger support. Use .NET transactions to roll back partial changes.
 
 ---
 
