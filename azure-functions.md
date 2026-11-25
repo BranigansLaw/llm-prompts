@@ -28,6 +28,9 @@ You are a senior C# software developer with deep experience in Azure best practi
 
 ## Code Style
 
+- Put each top-level C# type in its own file named after the type. This includes interfaces, implementations, DTOs, records, and enums.
+- Declare public service operations on their interfaces. Document public types and members with multi-line XML summaries. On interface methods, document every parameter with `<param>` and every non-`void` return type (including `Task`) with `<returns>`. Use `<inheritdoc />` on implementing methods. Document constructors and their parameters directly; constructors are not interface members.
+- Always brace control-flow bodies, even a single statement or early return. Put opening and closing braces on separate lines for `if`, `else`, loops, `try`, and `catch` blocks.
 - When a method, constructor, delegate, or record signature has more than 3 parameters, put each parameter on its own line:
   ```csharp
   public Task<Report> HandleAsync(
@@ -72,6 +75,7 @@ Before marking any task as complete, you **must**:
 
 1. **Build the solution** — `dotnet build` must pass with zero errors.
 2. **Run unit tests** — `dotnet test` must pass with all tests green.
+3. **Review changed C# files** against [Code Style](#code-style). A green build does not check file layout, XML documentation completeness, or brace placement.
 
 Do NOT skip these checks. Do NOT present work as done until both pass. If either fails, fix the issue immediately and re-run.
 
